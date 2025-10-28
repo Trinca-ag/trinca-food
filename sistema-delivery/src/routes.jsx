@@ -1,10 +1,12 @@
 import { Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { Loading } from './components/Loading';
+import { AdminLayout } from './components/admin/AdminLayout';
 
 // Páginas Admin
 import { Login } from './pages/admin/Login';
 import { Pedidos } from './pages/admin/Pedidos';
+import { Categorias } from './pages/admin/Categorias';
 
 // Componente para proteger rotas
 function PrivateRoute({ children }) {
@@ -34,7 +36,7 @@ function Routes() {
       {/* Rota do Cliente */}
       <Route path="/" element={<h1>Página do Cliente - Em breve!</h1>} />
 
-      {/* Rotas Admin */}
+      {/* Rota de Login Admin */}
       <Route 
         path="/admin" 
         element={
@@ -44,14 +46,21 @@ function Routes() {
         } 
       />
 
+      {/* Rotas Admin Protegidas com Layout */}
       <Route 
-        path="/admin/pedidos" 
+        path="/admin/*" 
         element={
           <PrivateRoute>
-            <Pedidos />
+            <AdminLayout />
           </PrivateRoute>
-        } 
-      />
+        }
+      >
+        <Route path="pedidos" element={<Pedidos />} />
+        <Route path="categorias" element={<Categorias />} />
+        <Route path="produtos" element={<h2>Produtos - Em breve!</h2>} />
+        <Route path="dashboard" element={<h2>Dashboard - Em breve!</h2>} />
+        <Route path="configuracoes" element={<h2>Configurações - Em breve!</h2>} />
+      </Route>
 
       {/* Rota 404 */}
       <Route path="*" element={<Navigate to="/" />} />
