@@ -7,6 +7,7 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { Login } from './pages/admin/Login';
 import { Pedidos } from './pages/admin/Pedidos';
 import { Categorias } from './pages/admin/Categorias';
+import { Produtos } from './pages/admin/Produtos';
 
 // Componente para proteger rotas
 function PrivateRoute({ children }) {
@@ -57,7 +58,7 @@ function Routes() {
       >
         <Route path="pedidos" element={<Pedidos />} />
         <Route path="categorias" element={<Categorias />} />
-        <Route path="produtos" element={<h2>Produtos - Em breve!</h2>} />
+        <Route path="produtos" element={<Produtos />} />
         <Route path="dashboard" element={<h2>Dashboard - Em breve!</h2>} />
         <Route path="configuracoes" element={<h2>Configurações - Em breve!</h2>} />
       </Route>
