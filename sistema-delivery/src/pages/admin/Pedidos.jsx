@@ -1,6 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { useNotificationSound } from '../../hooks/useNotificationSound';
 import { 
   observarPedidos, 
@@ -18,10 +16,9 @@ export function Pedidos() {
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [loading, setLoading] = useState(true);
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
-  const [ultimosPedidosIds, setUltimosPedidosIds] = useState([]);
-
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  
+  // Usar useRef para armazenar os IDs sem causar re-render
+  const ultimosPedidosIdsRef = useRef([]);
   const { playNotification } = useNotificationSound();
 
   useEffect(() => {
@@ -29,11 +26,11 @@ export function Pedidos() {
     const unsubscribe = observarPedidos((pedidosAtualizados) => {
       // Verificar se há novos pedidos pendentes
       const novosPedidosPendentes = pedidosAtualizados.filter(
-        p => p.status === 'pendente' && !ultimosPedidosIds.includes(p.id)
+        p => p.status === 'pendente' && !ultimosPedidosIdsRef.current.includes(p.id)
       );
 
       // Se houver novos pedidos, tocar notificação
-      if (novosPedidosPendentes.length > 0 && ultimosPedidosIds.length > 0) {
+      if (novosPedidosPendentes.length > 0 && ultimosPedidosIdsRef.current.length > 0) {
         playNotification();
         toast.success(`🔔 Novo pedido recebido!`, {
           duration: 5000,
@@ -41,15 +38,15 @@ export function Pedidos() {
         });
       }
 
-      // Atualizar lista de IDs
-      setUltimosPedidosIds(pedidosAtualizados.map(p => p.id));
+      // Atualizar referência dos IDs
+      ultimosPedidosIdsRef.current = pedidosAtualizados.map(p => p.id);
 
       setPedidos(pedidosAtualizados);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [ultimosPedidosIds, playNotification]);
+  }, []); // ✅ Array vazio - executar apenas uma vez
 
   // Filtrar pedidos por status
   useEffect(() => {
@@ -59,11 +56,6 @@ export function Pedidos() {
       setPedidosFiltrados(pedidos.filter(p => p.status === filtroStatus));
     }
   }, [pedidos, filtroStatus]);
-
-  async function handleLogout() {
-    await logout();
-    navigate('/admin');
-  }
 
   async function handleAceitarPedido(pedidoId) {
     try {
@@ -246,7 +238,7 @@ return (
       )}
     </div>
 
-    {/* Modal de Detalhes - permanece igual */}
+    {/* Modal de Detalhes */}
     {pedidoSelecionado && (
       <div className="modal-overlay" onClick={fecharDetalhes}>
         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
